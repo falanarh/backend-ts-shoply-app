@@ -1,18 +1,35 @@
-import mongoose, { Document, Model } from 'mongoose';
-import bcrypt from 'bcryptjs';
+import mongoose, { Document, Model } from "mongoose";
+import bcrypt from "bcryptjs";
+
+enum Gender {
+  Male = "male",
+  Female = "female",
+}
 
 interface IUser extends Document {
-  username: string;
+  fullName: string;
   email: string;
   password: string;
+  mobileNumber: string;
+  gender: Gender;
+  address: {
+    name: string;
+    street: string;
+    landmark: string;
+    zip: string;
+    state: string;
+    city: string;
+    country: string;
+    addressType: string;
+  };
+  createdAt: Date;
   matchPassword(enteredPassword: string): Promise<boolean>;
 }
 
 const UserSchema = new mongoose.Schema<IUser>({
-  username: {
+  fullName: {
     type: String,
     required: true,
-    unique: true,
   },
   email: {
     type: String,
@@ -23,10 +40,43 @@ const UserSchema = new mongoose.Schema<IUser>({
     type: String,
     required: true,
   },
+  mobileNumber: {
+    type: String,
+  },
+  address: {
+    name: {
+      type: String,
+    },
+    street: {
+      type: String,
+    },
+    landmark: {
+      type: String,
+    },
+    zip: {
+      type: String,
+    },
+    state: {
+      type: String,
+    },
+    city: {
+      type: String,
+    },
+    country: {
+      type: String,
+    },
+    addressType: {
+      type: String,
+    },
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
-UserSchema.pre<IUser>('save', async function (next) {
-  if (!this.isModified('password')) {
+UserSchema.pre<IUser>("save", async function (next) {
+  if (!this.isModified("password")) {
     return next();
   }
 
@@ -39,6 +89,6 @@ UserSchema.methods.matchPassword = async function (enteredPassword: string) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
-const User: Model<IUser> = mongoose.model<IUser>('User', UserSchema);
+const User: Model<IUser> = mongoose.model<IUser>("User", UserSchema);
 
 export default User;
